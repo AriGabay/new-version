@@ -10,7 +10,7 @@ yarn-error.log*
 
 # Environment variables
 .env
-.env.*    # כל קובץ שמתחיל ב .env כולל .env.local, .env.development וכו'
+.env.*
 
 # Directory for diagnostic clinic data
 .clinic/
