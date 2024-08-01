@@ -1,87 +1,32 @@
+require('dotenv').config();
 const express = require('express');
-const passport = require('passport');
-const session = require('express-session');
-const { authenticateUser } = require('./auth');
-const { handleNewAddresses } = require('./addresses');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const usersRouter = require('./routes/users');
+const addressesRouter = require('./routes/addresses');
+const filesRouter = require('./routes/files');
+const authRouter = require('./routes/auth');
+const mailManagerRouter = require('./routes/mailManager');
 
 const app = express();
+console.log('process.env.MONGO_URI', process.env.MONGO_URI);
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Could not connect to MongoDB', err));
+
+app.use(cors());
+app.use(express.json());
+app.use('/users', usersRouter);
+app.use('/addresses', addressesRouter);
+app.use('/files', filesRouter);
+app.use('/auth', authRouter);
+app.use('/mailmanager', mailManagerRouter);
+
 const port = process.env.PORT || 3000;
-
-// Configure session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-
-// Initialize passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Passport authentication strategy
-passport.use(
-  'local',
-  passport.Strategy({
-    usernameField: 'username',
-    passwordField: 'password',
-    validator: async (username, password, done) => {
-      const user = await authenticateUser(username, password);
-      if (!user) {
-        return done(null, false, { message: 'Invalid username or password' });
-      }
-      return done(null, user);
-    },
-  })
-);
-
-// Serialization and deserialization of user object for session storage
-passport.serializeUser((user) => user.id);
-passport.deserializeUser(async (id) => {
-  await connect();
-  try {
-    const query = `SELECT * FROM users WHERE id = $1`;
-    const values = [id];
-    const result = await client.query(query, values);
-    const user = result.rows[0];
-    if (!user) {
-      return null;
-    }
-    return user;
-  } catch (error) {
-    console.error('Failed to deserialize user:', error);
-    return null;
-  } finally {
-    await client.end();
-  }
-});
-
-// Define authentication middleware
-const authenticateMiddleware = passport.authenticate('local', {
-  failureFlash: true,
-});
-
-// Authentication routes
-app.post('/login', authenticateMiddleware, (req, res) => {
-  req.session.userId = req.user.id;
-  res.json({ message: 'Login successful' });
-});
-
-app.get('/logout', (req, res) => {
-  req.logout();
-  res.json({ message: 'Logout successful' });
-});
-
-// Protected route for handling new email addresses
-app.post('/addresses', authenticateMiddleware, async (req, res) => {
-  const userId = req.session.userId;
-  const addresses = req.body.addresses;
-  await handleNewAddresses(userId, addresses);
-  res.json({ message: 'Addresses processed successfully' });
-});
-
-// Start the server
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });

@@ -1,0 +1,56 @@
+# Node modules
+node_modules/
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*    # כל קובץ שמתחיל ב .env כולל .env.local, .env.development וכו'
+
+# Directory for diagnostic clinic data
+.clinic/
+
+# Dependency directories
+jspm_packages/
+bower_components/
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Typescript v1 declaration files
+typings/
+
+# Optional REPL history
+.node_repl_history
+
+# Debug output
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IntelliJ IDEA project files
+.idea/
+
+# VS Code project files
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Linux
+*~
